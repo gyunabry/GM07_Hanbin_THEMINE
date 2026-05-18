@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 
 namespace TheMine
 {
@@ -39,9 +40,9 @@ namespace TheMine
                 {
                     RunDungeon(player, mapManager, spawnManager);
                 }
-                else if (mapManager.CurrentMap == Map.Equipment)
+                else if (mapManager.CurrentMap == Map.Inventory)
                 {
-                    RunEquipment(mapManager, player);
+                    RunInventory(mapManager, player);
                 }
             }
         }
@@ -66,7 +67,7 @@ namespace TheMine
                 }
                 else if (keyInfo.KeyChar == '3')
                 {
-                    mapManager.MoveToOtherMap(Map.Equipment);
+                    mapManager.MoveToOtherMap(Map.Inventory);
                 }
             }
         }
@@ -74,6 +75,7 @@ namespace TheMine
         private static void RunShop(MapManager mapManager, ShopManager shopManager, Player player)
         {
             ConsoleRenderer.ClearLogs();
+            mapManager.MoveToShopMenu(Shop.Menu);
             ConsoleRenderer.AddLog("상점에 입장했습니다.");
 
             bool inShop = true;
@@ -81,43 +83,113 @@ namespace TheMine
 
             while (inShop)
             {
-                ViewRenderer.RenderShop(shopManager, player, inputBuffer.ToString());
-                int bottomY = ConsoleRenderer.GetBottomSplitY();
-                // ConsoleRenderer.BufferAt(3, bottomY + 1, $">> 입력 중 : {inputBuffer} (Enter를 누르면 아이템이 구매됩니다.)");
+                if (mapManager.CurrentShop == Shop.Menu)
+                {
+                    ViewRenderer.RenderShopMenu(player, inputBuffer.ToString());
+                    ConsoleKeyInfo keyInfo = Console.ReadKey(true);
 
-                ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+                    if (keyInfo.Key == ConsoleKey.Q)
+                    {
+                        inShop = false;
+                    }
+                    else if (keyInfo.KeyChar == '1')
+                    {
+                        mapManager.MoveToShopMenu(Shop.Buy);
+                        ConsoleRenderer.ClearLogs();
+                    }
+                    else if (keyInfo.KeyChar == '2')
+                    {
+                        mapManager.MoveToShopMenu(Shop.Sell);
+                        ConsoleRenderer.ClearLogs();
+                    }
+                }
+                // 1번 선택, 상점 구매 페이지
+                else if (mapManager.CurrentShop == Shop.Buy)
+                {
+                    ViewRenderer.RenderShopBuy(shopManager, player, inputBuffer.ToString());
+                    ConsoleKeyInfo keyInfo = Console.ReadKey(true);
 
-                if (keyInfo.Key == ConsoleKey.Q)
-                {
-                    inShop = false;
-                    break;
-                }
-                else if (keyInfo.Key == ConsoleKey.Enter)
-                {
-                    if (int.TryParse(inputBuffer.ToString(), out int itemNumber))
+                    if (keyInfo.Key == ConsoleKey.Q)
                     {
-                        shopManager.BuyItem(itemNumber - 1, player);
+                        mapManager.MoveToShopMenu(Shop.Menu);
+                        inputBuffer.Clear();
                     }
-                    else
+                    else if (keyInfo.Key == ConsoleKey.Enter)
                     {
-                        ConsoleRenderer.AddLog("아이템 구매 실패! 올바른 숫자를 입력해주세요.");
+                        if (int.TryParse(inputBuffer.ToString(), out int itemNumber))
+                        {
+                            shopManager.BuyItem(itemNumber - 1, player);
+                        }
+                        else
+                        {
+                            ConsoleRenderer.AddLog("아이템 구매 실패! 올바른 숫자를 입력해주세요.");
+                        }
+                        inputBuffer.Clear();
+                        // ConsoleRenderer.PrintAt(3, 25, new string(' ', 50));
                     }
-                    inputBuffer.Clear();
-                    // ConsoleRenderer.PrintAt(3, 25, new string(' ', 50));
+                    // 백스페이스 처리
+                    // 스트링빌더에서 끝에 하나 빼기
+                    else if (keyInfo.Key == ConsoleKey.Backspace)
+                    {
+                        if (inputBuffer.Length > 0)
+                        {
+                            inputBuffer.Remove(inputBuffer.Length - 1, 1);
+                        }
+                    }
+                    // 숫자키 입력 처리
+                    else if (char.IsDigit(keyInfo.KeyChar))
+                    {
+                        if (inputBuffer.Length < 2)
+                        {
+                            inputBuffer.Append(keyInfo.KeyChar);
+                        }
+                    }
                 }
-                // 백스페이스 처리
-                // 스트링빌더에서 끝에 하나 빼기
-                else if (keyInfo.Key == ConsoleKey.Backspace)
+                // 2번 선택, 아이템 판매
+                else if (mapManager.CurrentShop == Shop.Sell)
                 {
-                    if (inputBuffer.Length > 0)
+                    ViewRenderer.RenderInventory(
+                        player,
+                        inputBuffer.ToString(),
+                        "상점 - 판매",
+                        "판매하실 아이템의 [번호]를 입력하세요. (Q : 상점 메뉴로 돌아가기)"
+                    );
+
+                    ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+
+                    if (keyInfo.Key == ConsoleKey.Q)
+                    {
+                        mapManager.MoveToShopMenu(Shop.Menu); // 메뉴로 뒤로가기
+                        inputBuffer.Clear();
+                    }
+                    else if (keyInfo.Key == ConsoleKey.Enter)
+                    {
+                        if (int.TryParse(inputBuffer.ToString(), out int itemNumber))
+                        {
+                            // 화면에 출력된 인벤토리 순서와 동일하게 아이템 목록을 가져옴
+                            var validSlots = player.Inventory.Slots
+                                .Where(s => !s.Value.IsEmpty)
+                                .ToList();
+
+                            int targetIndex = itemNumber - 1;
+                            if (targetIndex >= 0 && targetIndex < validSlots.Count)
+                            {
+                                // 판매할 아이템의 실제 인벤토리 Key(슬롯 번호)를 찾아 판매
+                                int slotKey = validSlots[targetIndex].Key;
+                                shopManager.SellItem(slotKey, player);
+                            }
+                            else
+                            {
+                                ConsoleRenderer.AddLog("잘못된 번호입니다.");
+                            }
+                        }
+                        inputBuffer.Clear();
+                    }
+                    else if (keyInfo.Key == ConsoleKey.Backspace && inputBuffer.Length > 0)
                     {
                         inputBuffer.Remove(inputBuffer.Length - 1, 1);
                     }
-                }
-                // 숫자키 입력 처리
-                else if (char.IsDigit(keyInfo.KeyChar))
-                {
-                    if (inputBuffer.Length < 2)
+                    else if (char.IsDigit(keyInfo.KeyChar) && inputBuffer.Length < 2)
                     {
                         inputBuffer.Append(keyInfo.KeyChar);
                     }
@@ -137,6 +209,7 @@ namespace TheMine
 
             Monster monster;
 
+            // 플레이어가 죽지 않는 한 BattleManager의 StartBattle 메서드가 계속 실행됨
             while (inDungeon && !player.IsDead)
             {
                 bool isBossEncounter = Instance.CurrentDepth >= 50;
@@ -170,7 +243,7 @@ namespace TheMine
             mapManager.ReturnToTown();
         }
 
-        private static void RunEquipment(MapManager mapManager, Player player)
+        private static void RunInventory(MapManager mapManager, Player player)
         {
             ConsoleRenderer.ClearLogs();
 
@@ -179,7 +252,11 @@ namespace TheMine
 
             while (inEquipment)
             {
-                ViewRenderer.RenderEquipment(player, inputBuffer.ToString());
+                ViewRenderer.RenderInventory(player, 
+                    inputBuffer.ToString(), 
+                    "인벤토리", 
+                    "장착/해제할 장비 혹은 사용할 아이템의 [번호]를 입력하세요. (Q : 돌아가기)"
+                );
                 ConsoleKeyInfo keyInfo = Console.ReadKey(true);
 
                 if (keyInfo.Key == ConsoleKey.Q)
@@ -191,16 +268,25 @@ namespace TheMine
                 {
                     if (int.TryParse(inputBuffer.ToString(), out int itemNumber))
                     {
-                        var equipments = player.Inventory.Slots
-                            .Where(s => !s.Value.IsEmpty && s.Value.ItemData is Equipment)
-                            .Select(s => s.Value.ItemData as Equipment)
+                        var validSlots = player.Inventory.Slots
+                            .Where(s => !s.Value.IsEmpty)
                             .ToList();
 
                         int targetIndex = itemNumber - 1;
-                        if (targetIndex >= 0 && targetIndex < equipments.Count)
+                        if (targetIndex >= 0 && targetIndex < validSlots.Count)
                         {
-                            // 장착/해제 토글 실행
-                            player.ToggleEquip(equipments[targetIndex]);
+                            var targetItem = validSlots[targetIndex].Value.ItemData;
+
+                            // 아이템 타입에 맞게 로직 분리
+                            if (targetItem is Equipment eq)
+                            {
+                                player.ToggleEquip(eq);
+                            }
+                            else if (targetItem is Consumable consumable)
+                            {
+                                // TODO: 물약 사용 로직
+                                ConsoleRenderer.AddLog($"{consumable.Name}을(를) 사용했습니다.");
+                            }
                         }
                         else
                         {

@@ -242,12 +242,20 @@ namespace TheMine
             return "████████╗██╗  ██╗███████╗███╗   ███╗██╗███╗   ██╗███████╗\r\n╚══██╔══╝██║  ██║██╔════╝████╗ ████║██║████╗  ██║██╔════╝\r\n   ██║   ███████║█████╗  ██╔████╔██║██║██╔██╗ ██║█████╗  \r\n   ██║   ██╔══██║██╔══╝  ██║╚██╔╝██║██║██║╚██╗██║██╔══╝  \r\n   ██║   ██║  ██║███████╗██║ ╚═╝ ██║██║██║ ╚████║███████╗\r\n   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚══════╝\r\n                                                         ";
         }
 
-        internal static void RenderBattleScreen(Player player, Monster monster)
+        internal static void RenderBattleScreen(Player player, Monster monster, bool isEnd)
         {
             BeginBuffer();
             DrawFrameToBuffer();
             PrintLogs();
-            PrintBattleOptions();
+            // PrintBattleOptions();
+            if (!isEnd)
+            {
+                PrintOptions($"1. 기본 공격\t2. 스킬\t3. 아이템 사용\t4. 도망");
+            }
+            else
+            {
+                PrintOptions($"1. 더 깊은 곳으로 내려간다\t2. 마을로 귀환");
+            }
             PrintStatusPanel(player);
             PrintMonsterState(monster);
             PrintInventory(width + 2, 16, player.Inventory);
@@ -259,7 +267,7 @@ namespace TheMine
             BeginBuffer();
             DrawFrameToBuffer();
             PrintLogs();
-            PrintAfterBattleOptions();
+            // PrintAfterBattleOptions();
             PrintStatusPanel(player);
             PrintMonsterState(monster);
             PrintInventory(width + 2, 16, player.Inventory);
@@ -281,26 +289,33 @@ namespace TheMine
             }
         }
 
-        internal static void PrintTownOptions()
+        internal static void PrintOptions(string options)
         {
             int splitY = GetBottomSplitY();
             ClearRegion(1, splitY + 1, width - 3, bottomHeight - 1);
-            PrintLine(2, splitY + 1, "1. 상점 입장 \t2. 던전 입장 \t3. 장비 관리", width - 4);
+            PrintLine(2, splitY + 1, options, width - 4);
         }
 
-        internal static void PrintBattleOptions()
-        {
-            int splitY = GetBottomSplitY();
-            ClearRegion(1, splitY + 1, width - 3, bottomHeight - 1);
-            PrintLine(2, splitY + 1, "1. 기본 공격\t2. 스킬\t3. 아이템 사용\t4. 도망", width - 4);
-        }
+        //internal static void PrintTownOptions()
+        //{
+        //    int splitY = GetBottomSplitY();
+        //    ClearRegion(1, splitY + 1, width - 3, bottomHeight - 1);
+        //    PrintLine(2, splitY + 1, "1. 상점 입장 \t2. 던전 입장 \t3. 장비 관리", width - 4);
+        //}
 
-        internal static void PrintAfterBattleOptions()
-        {
-            int splitY = GetBottomSplitY();
-            ClearRegion(1, splitY + 1, width - 3, bottomHeight - 1);
-            PrintLine(2, splitY + 1, "1. 더 깊은 곳으로 내려간다\t2. 마을로 귀환", width - 4);
-        }
+        //internal static void PrintBattleOptions()
+        //{
+        //    int splitY = GetBottomSplitY();
+        //    ClearRegion(1, splitY + 1, width - 3, bottomHeight - 1);
+        //    PrintLine(2, splitY + 1, "1. 기본 공격\t2. 스킬\t3. 아이템 사용\t4. 도망", width - 4);
+        //}
+
+        //internal static void PrintAfterBattleOptions()
+        //{
+        //    int splitY = GetBottomSplitY();
+        //    ClearRegion(1, splitY + 1, width - 3, bottomHeight - 1);
+        //    PrintLine(2, splitY + 1, "1. 더 깊은 곳으로 내려간다\t2. 마을로 귀환", width - 4);
+        //}
 
         internal static int ReadAfterBattleChoice()
         {
@@ -340,8 +355,8 @@ namespace TheMine
             int y = 2;
 
             PrintCentered(y, $"지하 {GameManager.Instance.CurrentDepth.ToString()}층", width);
-            PrintCentered(y+1, monster.Name, width);
-            PrintCentered(y + 2, $"[{monster.Hp} / {monster.MaxHp}]", width);
+            PrintCentered(y + 2, monster.Name, width);
+            PrintCentered(y + 3, $"[{monster.Hp} / {monster.MaxHp}]", width);
         }
 
         // 인벤토리 표시 메서드

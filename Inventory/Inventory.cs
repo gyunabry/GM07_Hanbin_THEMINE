@@ -47,11 +47,17 @@ namespace TheMine
 
         // 인덱스를 전달받아 해당 인덱스에 해당하는 아이템 제거
         // 아이템 사용 및 판매 시 사용
-        public void RemoveItem(int index)
+        public void RemoveItem(int slotKey, int amount = 1)
         {
-            if (!Slots[index].IsEmpty)
+            if (Slots.TryGetValue(slotKey, out InventorySlot? slot) && !slot.IsEmpty)
             {
-                Slots.Remove(index);
+                slot.Count -= amount;
+
+                if (slot.Count <= 0)
+                {
+                    slot.ItemData = null;
+                    slot.Count = 0;
+                }
             }
         }
     }

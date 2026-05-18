@@ -71,6 +71,29 @@
             ConsoleRenderer.AddLog($"{targetItem.Name}을(를) 구매했습니다.");
         }
 
+        public void SellItem(int slotKey, Player player)
+        {
+            if (!player.Inventory.Slots.ContainsKey(slotKey) && player.Inventory.Slots[slotKey].IsEmpty)
+            {
+                ConsoleRenderer.AddLog("잘못된 슬롯입니다.");
+                return;
+            }
+
+            var slotItem = player.Inventory.Slots[slotKey];
+            Item targetItem = slotItem.ItemData;
+
+            // 판매하려는 아이템이 만약 장비이고 장착 중이라면 해제
+            if (targetItem is Equipment eq && eq.IsEquipped)
+            {
+                player.ToggleEquip(eq);
+            }
+
+            ConsoleRenderer.AddLog($"{targetItem.Name}을(를) 판매해 {targetItem.SellPrice} Gold를 획득했습니다.");
+            player.GainGold(targetItem.SellPrice);
+            player.Inventory.RemoveItem(slotKey, 1);
+            
+        }
+
         // 상점의 아이템 객체를 반환하는 메서드
         private Item CloneItem(Item sourceItem)
         {

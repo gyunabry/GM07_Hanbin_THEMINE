@@ -4,6 +4,7 @@ namespace TheMine
     {
         private Player _player;
         private Monster _monster;
+        private bool _isEnd;
         private bool _isEscaped;
 
         public void Init(Player player, Monster monster)
@@ -16,19 +17,23 @@ namespace TheMine
         // true : 계속 진행 / false : 귀환/사망
         public bool StartBattle()
         {
+            _isEnd = false;
+
             ConsoleRenderer.AddLog($"{_monster.Name}을(를) 조우했습니다.");
             ConsoleRenderer.AddLog(_monster.Description);
 
             while (!_player.IsDead && !_monster.IsDead && !_isEscaped)
             {
-                ConsoleRenderer.RenderBattleScreen(_player, _monster);
+                ConsoleRenderer.RenderBattleScreen(_player, _monster, _isEnd);
                 NextTurn();
             }
 
-            ConsoleRenderer.RenderBattleScreen(_player, _monster);
+            ConsoleRenderer.RenderBattleScreen(_player, _monster, _isEnd);
 
             if (_monster.IsDead)
             {
+                _isEnd = true;
+
                 GiveRewards();
 
                 if (GameManager.Instance.CurrentDepth >= 50)
@@ -38,7 +43,8 @@ namespace TheMine
                     return false;
                 }
 
-                ConsoleRenderer.RenderAfterBattleScreen(_player, _monster);
+                // ConsoleRenderer.RenderAfterBattleScreen(_player, _monster);
+                ConsoleRenderer.RenderBattleScreen(_player, _monster, _isEnd);
                 int select = ConsoleRenderer.ReadAfterBattleChoice();
 
                 if (select == 1) // 던전 탐험 진행
