@@ -141,22 +141,30 @@ namespace TheMine
 
         public static void DrawFrameToBuffer()
         {
-            BufferAt(0, 0, "+" + new string('-', width - 2) + "+" + new string('-', sideWidth - 2) + "+");
+            // 좌측 상단 및 외곽선 상단
+            BufferAt(0, 0, "┏" + new string('━', width - 2) + "┳" + new string('━', sideWidth - 2) + "┓");
 
+            // 중간 벽면
             for (int y = 1; y < height + bottomHeight - 1; y++)
             {
-                BufferAt(0, y, "|");
-                BufferAt(width - 1, y, "|");
-                BufferAt(width + sideWidth - 2, y, "|");
+                BufferAt(0, y, "┃");
+                BufferAt(width - 1, y, "┃");
+                BufferAt(width + sideWidth - 2, y, "┃");
             }
 
+            // 메인화면 하단 분리선 (선택지 UI 구분선)
             int splitY = GetBottomSplitY();
-            BufferAt(0, splitY, "+" + new string('-', width - 2) + "+");
+            if (splitY > 1 && splitY < height - 2)
+            {
+                BufferAt(0, splitY, "┣" + new string('━', width - 2) + "┫");
+            }
 
+            // 사이드 화면(상태창 / 인벤토리) 분리선
             int sideSplitY = 14;
-            BufferAt(width - 1, sideSplitY, "+" + new string('-', sideWidth - 2) + "+");
+            BufferAt(width - 1, sideSplitY, "┣" + new string('━', sideWidth - 2) + "┫");
 
-            BufferAt(0, height + bottomHeight - 1, "+" + new string('-', width - 2) + "+" + new string('-', sideWidth - 2) + "+");
+            // 하단 테두리
+            BufferAt(0, height + bottomHeight - 1, "┗" + new string('━', width - 2) + "┻" + new string('━', sideWidth - 2) + "┛");
         }
 
         public static void BufferAt(int x, int y, string text)
@@ -291,31 +299,11 @@ namespace TheMine
 
         internal static void PrintOptions(string options)
         {
+            options = options.Replace("\t", "    ");
             int splitY = GetBottomSplitY();
             ClearRegion(1, splitY + 1, width - 3, bottomHeight - 1);
             PrintLine(2, splitY + 1, options, width - 4);
         }
-
-        //internal static void PrintTownOptions()
-        //{
-        //    int splitY = GetBottomSplitY();
-        //    ClearRegion(1, splitY + 1, width - 3, bottomHeight - 1);
-        //    PrintLine(2, splitY + 1, "1. 상점 입장 \t2. 던전 입장 \t3. 장비 관리", width - 4);
-        //}
-
-        //internal static void PrintBattleOptions()
-        //{
-        //    int splitY = GetBottomSplitY();
-        //    ClearRegion(1, splitY + 1, width - 3, bottomHeight - 1);
-        //    PrintLine(2, splitY + 1, "1. 기본 공격\t2. 스킬\t3. 아이템 사용\t4. 도망", width - 4);
-        //}
-
-        //internal static void PrintAfterBattleOptions()
-        //{
-        //    int splitY = GetBottomSplitY();
-        //    ClearRegion(1, splitY + 1, width - 3, bottomHeight - 1);
-        //    PrintLine(2, splitY + 1, "1. 더 깊은 곳으로 내려간다\t2. 마을로 귀환", width - 4);
-        //}
 
         internal static int ReadAfterBattleChoice()
         {

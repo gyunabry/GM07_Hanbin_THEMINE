@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TheMine
 {
-    internal class StatusEffect
+    public class StatusEffect
     {
     }
 }

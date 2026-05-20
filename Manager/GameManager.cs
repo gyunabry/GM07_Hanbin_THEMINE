@@ -44,6 +44,10 @@ namespace TheMine
                 {
                     RunInventory(mapManager, player);
                 }
+                else if (mapManager.CurrentMap == Map.Temple)
+                {
+                    RunTemple(mapManager, player);
+                }
             }
         }
 
@@ -68,6 +72,10 @@ namespace TheMine
                 else if (keyInfo.KeyChar == '3')
                 {
                     mapManager.MoveToOtherMap(Map.Inventory);
+                }
+                else if (keyInfo.KeyChar == '4')
+                {
+                    mapManager.MoveToOtherMap(Map.Temple);
                 }
             }
         }
@@ -308,6 +316,59 @@ namespace TheMine
                     {
                         inputBuffer.Append(keyInfo.KeyChar);
                     }
+                }
+            }
+            mapManager.ReturnToTown();
+        }
+
+        private static void RunTemple(MapManager mapManager, Player player)
+        {
+            int cost = 100;
+
+            ConsoleRenderer.ClearLogs();
+            ConsoleRenderer.AddLog("신전에 입장했습니다.");
+
+            bool inTemple = true;
+
+            while (inTemple)
+            {
+                ViewRenderer.RenderTemple(player);
+                ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+
+                if (keyInfo.KeyChar == '1')
+                {
+                    if (!player.CanApplyEffect(EffectType.HP) && !player.CanApplyEffect(EffectType.MP))
+                    {
+                        ConsoleRenderer.AddLog($"이미 정상 컨디션이다.");
+                        continue;
+                    }
+
+                    if (player.Gold < cost)
+                    {
+                        ConsoleRenderer.AddLog($"소지금이 부족하다...");
+                        continue;
+                    }
+                    ConsoleRenderer.AddLog($"{cost} Gold 사용");
+                    ConsoleRenderer.AddLog($"플레이어의 체력과 마나를 회복합니다.");
+                    player.UseGold(cost);
+                    player.RestorePlayerState(player);
+                }
+                else if (keyInfo.KeyChar == '2')
+                {
+                    ConsoleRenderer.AddLog($"현재 플레이어에게 걸린 저주가 없습니다.");
+                    //if (player.Gold < cost)
+                    //{
+                    //    ConsoleRenderer.AddLog($"소지금이 부족하다...");
+                    //    continue;
+                    //}
+                    //ConsoleRenderer.AddLog($"{cost} Gold 사용");
+                    //ConsoleRenderer.AddLog($"플레이어의 체력과 마나를 회복합니다.");
+                    //player.UseGold(cost);
+                }
+                else if (keyInfo.Key == ConsoleKey.Q)
+                {
+                    inTemple = false;
+                    break;
                 }
             }
             mapManager.ReturnToTown();

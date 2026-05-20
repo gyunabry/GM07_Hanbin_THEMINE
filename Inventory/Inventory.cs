@@ -1,6 +1,6 @@
 namespace TheMine
 {
-    class Inventory
+    public class Inventory
     {
         // Key : ΩΩ∑‘ ¿Œµ¶Ω∫, Value : ¿Œ∫•≈‰∏Æ ΩΩ∑‘ µ•¿Ã≈Õ
         public Dictionary<int, InventorySlot> Slots { get; private set; } = new Dictionary<int, InventorySlot>();

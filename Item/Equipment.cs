@@ -1,13 +1,13 @@
 namespace TheMine
 {
-    abstract class Equipment : Item
+    public abstract class Equipment : Item
     {
         public int Durability { get; set; }
         public int UpgradeValue { get; set; }
         public bool IsEquipped { get; set; }
     }
 
-    class Pickaxe : Equipment 
+    public class Pickaxe : Equipment 
     { 
         public int BaseMiningPower { get; set; }
         public int CritChance { get; set; }
@@ -33,7 +33,7 @@ namespace TheMine
         }
     }
 
-    class Armor : Equipment
+    public class Armor : Equipment
     {
         public int BaseDefense { get; set; }
 

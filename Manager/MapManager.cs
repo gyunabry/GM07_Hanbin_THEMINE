@@ -5,7 +5,8 @@
         Town,
         Shop,
         Dungeon,
-        Inventory
+        Inventory,
+        Temple
     }
 
     enum Shop

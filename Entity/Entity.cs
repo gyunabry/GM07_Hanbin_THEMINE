@@ -1,7 +1,7 @@
 namespace TheMine
 {
     // 모든 전투 대상이 공통으로 가지는 상태
-    abstract class Entity
+    public abstract class Entity
     {
         public string Id { get; protected set; }
         public string Name { get; protected set; }

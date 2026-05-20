@@ -1,6 +1,6 @@
 namespace TheMine
 {
-    class Player : Entity, IAttackable
+    public class Player : Entity, IAttackable
     {
         public int Mp { get; private set; }
         public int MaxMp { get; private set; }
@@ -89,6 +89,50 @@ namespace TheMine
             player.Hp = MaxHp;
             player.Mp = MaxMp;
             player.IsDead = false;
+        }
+
+        public void RestoreHp(int amount)
+        {
+            ConsoleRenderer.AddLog($"HP : {amount} 회복");
+            Hp += amount;
+            if (Hp > MaxHp)
+            {
+                Hp = MaxHp;
+            }
+        }
+
+        public void RestoreMp(int amount)
+        {
+            ConsoleRenderer.AddLog($"MP : {amount} 회복");
+            Mp += amount;
+            if (Mp > MaxMp)
+            {
+                Mp = MaxMp;
+            }
+        }
+
+        public bool CanApplyEffect(EffectType type)
+        {
+            switch (type)
+            {
+                case EffectType.HP:
+                    return Hp < MaxHp;
+
+                case EffectType.MP:
+                    return Mp < MaxMp;
+
+                case EffectType.AttackBuff:
+                    // TODO: 나중에 버프 시스템이 추가되면 이미 공격력 버프가 있는지 검사
+                    // return !HasAttackBuff; 
+                    return true; // 지금은 무조건 사용 가능하도록 true 반환
+
+                case EffectType.DefenseBuff:
+                    // TODO: 방어력 버프 검사 로직
+                    return true;
+
+                default:
+                    return true;
+            }
         }
 
         public void ToggleEquip(Equipment equip)

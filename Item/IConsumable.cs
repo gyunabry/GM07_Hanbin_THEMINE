@@ -5,6 +5,6 @@ namespace TheMine
         // HP, MP 회복, 공격력 증가 등에 쓰일 수치
         public int Value { get; set; }
 
-        public void UseItem();
+        public bool UseItem(Player player);
     }
 }

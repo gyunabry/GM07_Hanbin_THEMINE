@@ -10,8 +10,43 @@
             ShopItems.Clear();
 
             // 소비 아이템 추가
-            ShopItems.Add(new Consumable { Id = "C001", Name = "빨간 물약", Price = 50, SellPrice = 20, Description = "사용 시 HP를 30 회복합니다." });
-            ShopItems.Add(new Consumable { Id = "C002", Name = "파란 물약", Price = 50, SellPrice = 20, Description = "사용 시 MP를 20 회복합니다." });
+            ShopItems.Add(new Consumable {
+                Id = "C001",
+                Name = "빨간 물약",
+                Price = 50,
+                SellPrice = 20,
+                Description = "사용 시 HP를 30 회복합니다.",
+                OnUseEffect = (player) =>
+                {
+                    if (!player.CanApplyEffect(EffectType.HP))
+                    {
+                        ConsoleRenderer.AddLog("이미 체력이 최대치라 사용할 수 없습니다.");
+                        return false;
+                    }
+                    player.RestoreHp(30);
+                    ConsoleRenderer.AddLog("빨간 물약을 사용하여 체력을 30 회복했습니다.");
+                    return true;
+                }
+            });
+
+            ShopItems.Add(new Consumable { 
+                Id = "C002", 
+                Name = "파란 물약", 
+                Price = 50, 
+                SellPrice = 20, 
+                Description = "사용 시 MP를 20 회복합니다.",
+                OnUseEffect = (player) =>
+                {
+                    if (!player.CanApplyEffect(EffectType.MP))
+                    {
+                        ConsoleRenderer.AddLog("이미 마나가 최대치라 사용할 수 없습니다.");
+                        return false;
+                    }
+                    player.RestoreMp(20);
+                    ConsoleRenderer.AddLog("파란 물약을 사용하여 체력을 30 회복했습니다.");
+                    return true;
+                }
+            });
             // ShopItems.Add(new Consumable { Id = "C003", Name = "분노 물약", Price = 100, SellPrice = 40, Description = "사용 시 공격력이 10 증가합니다." });
 
             // 곡괭이 및 방어구 추가
@@ -98,7 +133,7 @@
         private Item CloneItem(Item sourceItem)
         {
             if (sourceItem is Consumable c)
-                return new Consumable { Id = c.Id, Name = c.Name, Price = c.Price, SellPrice = c.SellPrice, Description = c.Description, Value = c.Value };
+                return new Consumable { Id = c.Id, Name = c.Name, Price = c.Price, SellPrice = c.SellPrice, Description = c.Description, OnUseEffect = c.OnUseEffect };
             if (sourceItem is Pickaxe p)
                 return new Pickaxe(p.Id, p.Name, p.Durability, p.BaseMiningPower, p.UpgradeValue, p.CritChance, p.Price, p.SellPrice, p.Description);
             if (sourceItem is Armor a)

@@ -71,7 +71,6 @@ namespace TheMine
             }
             else if (_isEscaped)
             {
-                ConsoleRenderer.AddLog("전투에서 도망쳤습니다.");
                 ConsoleRenderer.AddLog($"아무키나 눌러 마을로 복귀");
                 return false;
             }
@@ -96,10 +95,16 @@ namespace TheMine
                     ConsoleRenderer.AddLog("아직 쓸 수 있는 스킬이 없다.");
                     break;
                 case 3:
-                    ConsoleRenderer.AddLog("이정도 적에게 아이템 사용은 수치다.");
+                    bool isItemUsed = TryUseItem();
+
+                    if (isItemUsed && !_monster.IsDead)
+                    {
+                        MonsterAttack();
+                    }
                     break;
                 case 4:
                     _isEscaped = true;
+                    ConsoleRenderer.AddLog("전투에서 도망쳤습니다.");
                     break;
             }
         }
@@ -136,6 +141,75 @@ namespace TheMine
             if (_player.IsDead)
             {
                 ConsoleRenderer.AddLog($"{_player.Name}이(가) 쓰러졌습니다.");
+            }
+        }
+
+        private bool TryUseItem()
+        {
+            string currentInput = "";
+
+            while (true)
+            {
+                // 인벤토리 화면 렌더링 (전투 전용 가이드 텍스트 전달)
+                ViewRenderer.RenderInventory(_player, currentInput, "인벤토리", "사용할 아이템의 번호를 입력하세요. (Q: 취소)");
+
+                // 문자 입력 받기
+                var keyInfo = Console.ReadKey(true);
+
+                // 0번을 누르면 취소
+                if (keyInfo.Key == ConsoleKey.Q)
+                {
+                    return false;
+                }
+
+                if (keyInfo.Key == ConsoleKey.Enter)
+                {
+                    if (int.TryParse(currentInput, out int choice))
+                    {
+                        var validSlots = _player.Inventory.Slots
+                            .Where(s => !s.Value.IsEmpty)
+                            .ToList();
+
+                        // 입력한 번호가 유효한지 확인
+                        if (choice > 0 && choice <= validSlots.Count)
+                        {
+                            var targetSlot = validSlots[choice - 1];
+                            int slotKey = targetSlot.Key;           // 딕셔너리의 Key
+                            Item item = targetSlot.Value.ItemData;  // 실제 아이템 데이터
+
+                            // 소비 아이템인지 체크
+                            if (item is Consumable consumable)
+                            {
+                                bool isSuccess = consumable.UseItem(_player);
+
+                                if (isSuccess)
+                                {
+                                    ConsoleRenderer.AddLog($"{item.Name} 사용!");
+                                    // 사용 성공 시 인벤토리에서 아이템 1개 제거
+                                    _player.Inventory.RemoveItem(slotKey, 1);
+                                    return true; // 턴 소모됨을 알림
+                                }
+                            }
+                            else
+                            {
+                                ConsoleRenderer.AddLog($"{item.Name}은(는) 전투 중에 사용할 수 없습니다.");
+                            }
+                        }
+                        else
+                        {
+                            ConsoleRenderer.AddLog("잘못된 번호입니다.");
+                        }
+                    }
+                    currentInput = ""; // 잘못 입력하거나 사용할 수 없는 아이템인 경우 입력창 초기화
+                }
+                else if (keyInfo.Key == ConsoleKey.Backspace && currentInput.Length > 0)
+                {
+                    currentInput = currentInput.Substring(0, currentInput.Length - 1);
+                }
+                else if (char.IsDigit(keyInfo.KeyChar))
+                {
+                    currentInput += keyInfo.KeyChar;
+                }
             }
         }
     }

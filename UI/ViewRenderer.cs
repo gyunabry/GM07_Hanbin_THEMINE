@@ -18,7 +18,7 @@ namespace TheMine
             ConsoleRenderer.BufferAt(33, 5, "마을");
             ConsoleRenderer.BufferAt(20, 8, "평화로운 마을이다. 무엇을 할까?");
 
-            ConsoleRenderer.PrintOptions($"1. 상점 입장 \t2. 던전 입장 \t3. 인벤토리 확인");
+            ConsoleRenderer.PrintOptions($"1. 상점 입장 \t2. 던전 입장 \t3. 인벤토리 확인\t4. 신전 입장");
 
             ConsoleRenderer.PrintStatusPanel(player);
             ConsoleRenderer.PrintInventory(77, 16, player.Inventory);
@@ -99,11 +99,6 @@ namespace TheMine
             ConsoleRenderer.EndBuffer();
         }
 
-        public static void RenderShopSell(ShopManager shopManager, Player player, string currentInput)
-        {
-
-        }
-
         public static void RenderInventory(Player player, string currentInput, string title, string guideText)
         {
             ConsoleRenderer.BeginBuffer();
@@ -112,7 +107,7 @@ namespace TheMine
 
             ConsoleRenderer.BufferAt(31, 2, "장비 관리");
             ConsoleRenderer.BufferAt(3, 4, "---------------------------------------------------------------------");
-            ConsoleRenderer.BufferAt(3, 5, " 번호 |      장비 이름      |  능력치  |          설명          ");
+            ConsoleRenderer.BufferAt(3, 5, " 번호 |      장비 이름      |   능력치   |          수량        ");
             ConsoleRenderer.BufferAt(3, 6, "---------------------------------------------------------------------");
 
             int startY = 7;
@@ -164,6 +159,30 @@ namespace TheMine
             int bottomY = ConsoleRenderer.GetBottomSplitY();
             ConsoleRenderer.BufferAt(3, bottomY + 1, guideText);
             ConsoleRenderer.BufferAt(3, bottomY + 2, $">> 입력 중 : {currentInput} (Enter를 누르면 적용됩니다.)");
+
+            ConsoleRenderer.PrintStatusPanel(player);
+            ConsoleRenderer.PrintInventory(77, 16, player.Inventory);
+
+            ConsoleRenderer.EndBuffer();
+        }
+
+        public static void RenderTemple(Player player)
+        {
+            ConsoleRenderer.BeginBuffer();
+            ConsoleRenderer.DrawFrameToBuffer();
+
+            ConsoleRenderer.ClearRegion(2, 2, 71, 22);
+
+            ConsoleRenderer.BufferAt(33, 5, "신전");
+            ConsoleRenderer.BufferAt(20, 8, "성스러운 기운이 느껴진다. 무엇을 할까?");
+
+            ConsoleRenderer.BufferAt(26, 12, "1. 회복 (100G)");
+            ConsoleRenderer.BufferAt(26, 14, "2. 정화 의식");
+
+            ConsoleRenderer.PrintLogs();
+
+            int bottomY = ConsoleRenderer.GetBottomSplitY();
+            ConsoleRenderer.BufferAt(3, bottomY + 1, "원하시는 기능의 [번호]를 입력하세요. (Q: 마을로 돌아가기)");
 
             ConsoleRenderer.PrintStatusPanel(player);
             ConsoleRenderer.PrintInventory(77, 16, player.Inventory);

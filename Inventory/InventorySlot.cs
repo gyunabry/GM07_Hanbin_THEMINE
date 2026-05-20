@@ -1,6 +1,6 @@
 namespace TheMine
 {
-    class InventorySlot
+    public class InventorySlot
     {
         public Item ItemData { get; set; }
         public int Count { get; set; }
