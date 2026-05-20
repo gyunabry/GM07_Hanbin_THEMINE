@@ -75,7 +75,21 @@ namespace TheMine
         private void LevelUp()
         {
             Level++;
-            // TODO: 레벨업 시 스탯 증가 또는 스탯 분배 구현
+            ConsoleRenderer.AddLog($"레벨업! 현재 레벨 : {Level}");
+
+            // 1레벨당 체력 10 증가
+            // 레벨업 시 체력 회복
+            MaxHp += 10;
+            RestoreHp(MaxHp);
+
+            MaxMp += 5;
+            RestoreMp(MaxMp);
+
+            // 1레벨당 공격력 2 증가
+            AttackPower += 2;
+
+            // 2레벨당 방어력 1 증가
+            Def += (Level % 2 == 0) ? 1 : 0;
         }
 
         public int GetRequiredExpForNextLevel()
@@ -84,16 +98,15 @@ namespace TheMine
             return Level * 100;
         }
 
-        public void RestorePlayerState(Player player)
+        public void RestorePlayerState()
         {
-            player.Hp = MaxHp;
-            player.Mp = MaxMp;
-            player.IsDead = false;
+            Hp = MaxHp;
+            Mp = MaxMp;
+            IsDead = false;
         }
 
         public void RestoreHp(int amount)
         {
-            ConsoleRenderer.AddLog($"HP : {amount} 회복");
             Hp += amount;
             if (Hp > MaxHp)
             {
@@ -103,7 +116,6 @@ namespace TheMine
 
         public void RestoreMp(int amount)
         {
-            ConsoleRenderer.AddLog($"MP : {amount} 회복");
             Mp += amount;
             if (Mp > MaxMp)
             {

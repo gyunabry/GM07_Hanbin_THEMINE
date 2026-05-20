@@ -244,7 +244,7 @@ namespace TheMine
             if (player.IsDead)
             {
                 // 플레이어의 상태를 복구하여 IsDead를 false로 만듭니다.
-                player.RestorePlayerState(player);
+                player.RestorePlayerState();
                 ConsoleRenderer.AddLog("정신을 잃었으나 마을사람들에게 무사히 구조되었습니다! (HP/MP 회복)");
             }
             Console.ReadKey(true);
@@ -351,7 +351,7 @@ namespace TheMine
                     ConsoleRenderer.AddLog($"{cost} Gold 사용");
                     ConsoleRenderer.AddLog($"플레이어의 체력과 마나를 회복합니다.");
                     player.UseGold(cost);
-                    player.RestorePlayerState(player);
+                    player.RestorePlayerState();
                 }
                 else if (keyInfo.KeyChar == '2')
                 {
